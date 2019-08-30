@@ -14,10 +14,10 @@ class Platform(JAssetsModel):
     id = models.UUIDField(primary_key=True, unique=True)
     name = models.CharField(max_length=30)
     symbol = models.CharField(max_length=10, unique=True)
-    main_asset = models.ForeignKey(
+    main_asset_obj = models.ForeignKey(
         "Asset", db_column='main_asset', 
         null=True, on_delete=models.SET_NULL,
-        related_name='main_for_platform')
+        related_name='main_for_platform', to_field='uuid')
 
     def __str__(self):
         return f'{self.name} - {self.symbol}'
@@ -31,7 +31,7 @@ class Asset(JAssetsModel):
     uuid = models.UUIDField(unique=True)
     name = models.CharField(max_length=50, null=True)
     description = models.TextField(default="")
-    platform = models.ForeignKey(
+    platform_obj = models.ForeignKey(
         "Platform", db_column='platform', null=True, on_delete=models.SET_NULL)
     symbol = models.CharField(max_length=30, unique=True)
     type = models.CharField(max_length=50, choices=AssetType.choices())
@@ -63,19 +63,19 @@ class Exchange(JAssetsModel):
 
 class TradingPair(JAssetsModel):
     id = models.IntegerField(primary_key=True)
-    base_asset = models.ForeignKey(
+    base_asset_obj = models.ForeignKey(
         "Asset", db_column='base_asset', null=True, on_delete=models.SET_NULL, 
         related_name='base_for_pair')
-    quote_asset = models.ForeignKey(
+    quote_asset_obj = models.ForeignKey(
         "Asset", db_column='quote_asset', null=True, on_delete=models.SET_NULL, 
         related_name='quote_for_pair')
-    exchange = models.ForeignKey(
+    exchange_obj = models.ForeignKey(
         "Exchange", db_column='exchange', on_delete=models.CASCADE)
     symbol = models.CharField(max_length=15)
 
     class Meta:
         db_table = 'trading_pairs'
-        unique_together = ('base_asset', 'quote_asset', 'exchange')
+        unique_together = ('base_asset_obj', 'quote_asset_obj', 'exchange_obj')
 
     def __str__(self):
         return f'{self.exchange} - {self.symbol}'
